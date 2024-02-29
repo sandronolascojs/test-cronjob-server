@@ -5,7 +5,7 @@ import { HttpService } from '@nestjs/axios'
 import { PrismaService } from 'src/shared/services/prisma.service'
 import { env } from 'src/shared/config/env.config'
 import { EmailType } from 'src/shared/types/enums/emailType.enum'
-import { TWENTY_FOUR_HOURS } from 'src/shared/types/constants/time.constants'
+import { FOURTY_EIGHT_HOURS } from 'src/shared/types/constants/time.constants'
 
 @Injectable()
 export class ApplicationsService {
@@ -15,7 +15,7 @@ export class ApplicationsService {
     private readonly httpService: HttpService,
   ) {}
 
-  @Cron('0 */2 * * * *')
+  @Cron('0 */3 * * * *')
   async removeExpiredApplications() {
     const applications = await this.getApplicationsToExpire()
 
@@ -130,7 +130,7 @@ export class ApplicationsService {
     const applicationsExpired = await this.prismaService.application.findMany({
       where: {
         createdAt: {
-          lte: new Date(Date.now() - TWENTY_FOUR_HOURS),
+          lte: new Date(Date.now() - FOURTY_EIGHT_HOURS),
         },
         shift: {
           status: 'Pending',

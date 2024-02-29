@@ -14,11 +14,11 @@ import { ShiftsModule } from './modules/shifts/shifts.module'
       envFilePath: '.env',
     }),
     ScheduleModule.forRoot(),
-    ApplicationsModule,
     ShiftsModule,
+    ApplicationsModule,
   ],
   controllers: [AppController],
   providers: [],
-  exports: [ScheduleModule],
+  exports: [],
 })
 export class AppModule {}

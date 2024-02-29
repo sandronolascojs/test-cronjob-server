@@ -13,7 +13,7 @@ export class ShiftsService {
     private readonly httpService: HttpService,
   ) {}
 
-  @Cron('0 */1 * * * *')
+  @Cron('0 */5 * * * *')
   async removeExpiredShifts() {
     const shifts = await this.getShiftsToExpire()
     if (shifts.length > 0) {
