@@ -6,6 +6,7 @@ import { PrismaService } from 'src/shared/services/prisma.service'
 import { env } from 'src/shared/config/env.config'
 import { EmailType } from 'src/shared/types/enums/emailType.enum'
 import { FOURTY_EIGHT_HOURS } from 'src/shared/types/constants/time.constants'
+import axios from 'axios'
 
 @Injectable()
 export class ApplicationsService {
@@ -45,22 +46,15 @@ export class ApplicationsService {
       })
 
       await this.deleteApplicationsAndDisconnect(applicationsToDelete).then(
-        () => {
-          this.httpService
-            .post(
-              `${env.EMAIL_SERVICE_URL}/send-application-expired`,
-              {
-                type: EmailType.SHIFT_APPLICATION_EXPIRED,
-                providers: metadataProviders,
-                facilities: metadataFacilities,
-              },
-              {
-                headers: {
-                  'Content-Type': 'application/json',
-                },
-              },
-            )
-            .subscribe()
+        async () => {
+          await axios.post(
+            `${env.EMAIL_SERVICE_URL}/send-application-expired`,
+            {
+              type: EmailType.SHIFT_APPLICATION_EXPIRED,
+              providers: metadataProviders,
+              facilities: metadataFacilities,
+            },
+          )
         },
       )
     }

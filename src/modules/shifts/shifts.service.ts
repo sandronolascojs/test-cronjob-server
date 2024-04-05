@@ -4,6 +4,7 @@ import { HttpService } from '@nestjs/axios'
 
 import { PrismaService } from 'src/shared/services/prisma.service'
 import { EmailType } from 'src/shared/types/enums/emailType.enum'
+import axios from 'axios'
 
 @Injectable()
 export class ShiftsService {
@@ -48,22 +49,15 @@ export class ShiftsService {
         }
       }
 
-      await this.removeShifts(shiftsToDelete).then(() => {
-        this.httpService
-          .post(
-            `${process.env.EMAIL_SERVICE_URL}/send-shift-expired`,
-            {
-              type: EmailType.SHIFT_EXPIRED,
-              providers: metadataApplicants,
-              facilities: metadataFacilities,
-            },
-            {
-              headers: {
-                'Content-Type': 'application/json',
-              },
-            },
-          )
-          .subscribe()
+      await this.removeShifts(shiftsToDelete).then(async () => {
+        await axios.post(
+          `${process.env.EMAIL_SERVICE_URL}/send-shift-expired`,
+          {
+            type: EmailType.SHIFT_EXPIRED,
+            providers: metadataApplicants,
+            facilities: metadataFacilities,
+          },
+        )
       })
     }
     this.logger.log(`Removed ${shifts.length} expired shifts`)
