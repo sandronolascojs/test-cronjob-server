@@ -1,3 +1,6 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
 generator client {
   provider = "prisma-client-js"
 }
@@ -21,6 +24,7 @@ model User {
   providerId           String?
   contract             Contract?
   customerId           String?
+  howDidYouHearAboutUs String?
   contractSignedStatus Boolean    @default(false)
 }
 
@@ -49,6 +53,8 @@ model Facility {
   pharmacistRate        String?
   techRate              String?
   contractSignedStatus  Boolean        @default(false)
+  hasFFMCompleted       Boolean        @default(false)
+  createdAt             DateTime       @default(now())
   languages             Language[]     @relation("FacilityToLanguage")
   software              Software[]     @relation("FacilityToSoftware")
   specialties           Specialty[]    @relation("FacilityToSpecialty")
@@ -63,98 +69,133 @@ model Facility {
 }
 
 model Provider {
-  id                    String               @id @default(cuid())
-  user                  User                 @relation(fields: [userId], references: [userId])
-  userId                String               @unique
-  userImage             String?
-  email                 String?
-  name                  String
-  title                 String?
-  stripeAccountId       String?
-  stripeAccountSetup    Boolean              @default(false)
-  streetAddress         String?
-  city                  String?
-  state                 String?
-  zipcode               String?
-  lat                   Float?
-  lng                   Float?
-  licenseNumber         String?
-  licenseExpiry         DateTime?
-  licenseState          String?
-  yearsExperience       String?
-  pharmacyLicenseImage  String?
-  certificationImage    String?
-  phone                 String?
-  about                 String?
-  complianceTrainings   ComplianceTraining[]
-  contractSignedStatus  Boolean              @default(false)
-  w9Status              Boolean              @default(false)
-  shiftsApplied         Shift[]              @relation("applicant")
-  shiftsApproved        Shift[]              @relation("hiredProvider")
-  hiredStatus           HiredStatus[]
-  conversations         Conversation[]
-  currentConversationId String?
-  readReceipts          ReadReceipt[]
-  connections           Connection[]
-  software              Software[]           @relation("ProviderToSoftware")
-  specialties           Specialty[]          @relation("ProviderToSpecialty")
-  languages             Language[]           @relation("ProviderToLanguage")
-  facilityTypes         FacilityType[]       @relation("ProviderTofacilityType")
-  checkrCandidate       CheckrCandidate?
-  checkrCandidateId     String?
-  stripePayments        StripePayment[]
-  shiftApplications     Application[]
-  TaxInformation        TaxInformation[]
+  id                      String               @id @default(cuid())
+  user                    User                 @relation(fields: [userId], references: [userId])
+  userId                  String               @unique
+  userImage               String?
+  email                   String?
+  name                    String
+  title                   String?
+  stripeAccountId         String?
+  stripeAccountSetup      Boolean              @default(false)
+  hasMalpracticeInsurance Boolean              @default(false)
+  streetAddress           String?
+  city                    String?
+  state                   String?
+  zipcode                 String?
+  lat                     Float?
+  lng                     Float?
+  licenseNumber           String?
+  licenseExpiry           DateTime?
+  licenseState            String?
+  yearsExperience         String?
+  pharmacyLicenseImage    String?
+  certificationImage      String?
+  phone                   String?
+  about                   String?
+  currentHourlyRate       String?
+  complianceTrainings     ComplianceTraining[]
+  contractSignedStatus    Boolean              @default(false)
+  w9Status                Boolean              @default(false)
+  createdAt               DateTime             @default(now())
+  shiftsApplied           Shift[]              @relation("applicant")
+  shiftsApproved          Shift[]              @relation("hiredProvider")
+  hiredStatus             HiredStatus[]
+  conversations           Conversation[]
+  currentConversationId   String?
+  readReceipts            ReadReceipt[]
+  connections             Connection[]
+  software                Software[]           @relation("ProviderToSoftware")
+  specialties             Specialty[]          @relation("ProviderToSpecialty")
+  languages               Language[]           @relation("ProviderToLanguage")
+  facilityTypes           FacilityType[]       @relation("ProviderTofacilityType")
+  checkrCandidate         CheckrCandidate[]
+  stripePayments          StripePayment[]
+  shiftApplications       Application[]
+  TaxInformation          TaxInformation[]
+  Certification           Certification[]
+  Licenses                License[]
+  LicensePayment          LicensePayment[]
+}
+
+model Certification {
+  id         String   @id @default(uuid())
+  type       String
+  providerId String
+  filename   String
+  filelink   String
+  provider   Provider @relation(fields: [providerId], references: [id])
+  createdAt  DateTime @default(now())
+}
+
+model License {
+  id                    String    @id @default(cuid())
+  type                  String
+  state                 String
+  providerId            String
+  filename              String
+  filelink              String
+  licenseExpirationDate DateTime
+  isDeleted             Boolean   @default(false)
+  deletedAt             DateTime?
+  createdAt             DateTime  @default(now())
+
+  provider       Provider         @relation(fields: [providerId], references: [id])
+  LicensePayment LicensePayment[]
 }
 
 model Shift {
-  id                String         @id @default(cuid())
-  facility          Facility       @relation(fields: [facilityId], references: [id])
-  facilityId        String
-  shiftCreatorName  String
-  shiftLocationName String?
-  shiftCreatorImage String
-  shiftCreatorLogo  String?
-  dateCreated       DateTime       @default(now())
-  shiftDate         DateTime
-  shiftTime         String
-  rate              String
-  facilityRate      String?
-  totalPayment      String?
-  displayedRate     String?
-  title             String?
-  description       String?
-  providerRole      String?
-  facilityType      String?
-  languages         Language[]     @relation("ShiftToLanguage")
-  software          String?
-  specialties       Specialty[]    @relation("ShiftToSpecialty")
-  facilityTypes     FacilityType[] @relation("ShiftTofacilityType")
-  location          String
-  lat               Float?
-  lng               Float?
-  archived          Boolean        @default(false)
-  applicants        Provider[]     @relation("applicant")
-  applications      Application[]
-  hiredProvider     Provider?      @relation("hiredProvider", fields: [hiredProviderId], references: [id])
-  hiredProviderId   String?
-  hiredStatus       HiredStatus?
-  status            ShiftStatus    @default(Pending)
-  conversation      Conversation?  @relation(fields: [conversationId], references: [id])
-  conversationId    String?
-  shiftPayment      ShiftPayment?
+  id                           String         @id @default(cuid())
+  facility                     Facility       @relation(fields: [facilityId], references: [id])
+  facilityId                   String
+  shiftCreatorName             String
+  shiftLocationName            String?
+  shiftCreatorImage            String
+  shiftCreatorLogo             String?
+  dateCreated                  DateTime       @default(now())
+  shiftDate                    DateTime
+  shiftTime                    String
+  rate                         String
+  facilityRate                 String?
+  totalPayment                 String?
+  displayedRate                String?
+  title                        String?
+  description                  String?
+  providerRole                 String?
+  facilityType                 String?
+  malpracticeInsuranceRequired Boolean        @default(false)
+  experienceInSoftwareRequired Boolean        @default(false)
+  drugScreenRequired           Boolean        @default(false)
+  languages                    Language[]     @relation("ShiftToLanguage")
+  software                     String?
+  specialties                  Specialty[]    @relation("ShiftToSpecialty")
+  facilityTypes                FacilityType[] @relation("ShiftTofacilityType")
+  location                     String
+  lat                          Float?
+  lng                          Float?
+  archived                     Boolean        @default(false)
+  applicants                   Provider[]     @relation("applicant")
+  applications                 Application[]
+  hiredProvider                Provider?      @relation("hiredProvider", fields: [hiredProviderId], references: [id])
+  hiredProviderId              String?
+  hiredStatus                  HiredStatus?
+  status                       ShiftStatus    @default(Pending)
+  conversation                 Conversation?  @relation(fields: [conversationId], references: [id])
+  conversationId               String?
+  shiftPayment                 ShiftPayment?
 }
 
 model Application {
-  id                 String   @id @default(cuid())
-  shift              Shift    @relation(fields: [shiftId], references: [id])
-  shiftId            String
-  applicant          Provider @relation(fields: [applicantId], references: [id])
-  applicantId        String
-  applicantName      String
-  applicantImage     String
-  applicationMessage String?
-  createdAt          DateTime @default(now())
+  id                          String   @id @default(cuid())
+  shift                       Shift    @relation(fields: [shiftId], references: [id])
+  shiftId                     String
+  applicant                   Provider @relation(fields: [applicantId], references: [id])
+  applicantId                 String
+  applicantName               String
+  applicantImage              String
+  applicationMessage          String?
+  applicantSoftwareExperience String?
+  createdAt                   DateTime @default(now())
 }
 
 enum ShiftStatus {
@@ -245,6 +286,20 @@ model StripePayment {
   updatedAt       DateTime    @updatedAt
   provider        Provider    @relation(fields: [providerId], references: [id])
   providerId      String
+}
+
+model LicensePayment {
+  id              String   @id @default(cuid())
+  amount          Int
+  status          String
+  providerId      String
+  licenseType     String
+  stateLicense    String
+  stripePaymentId String
+  licenseId       String
+  createdAt       DateTime @default(now())
+  provider        Provider @relation(fields: [providerId], references: [id])
+  License         License  @relation(fields: [licenseId], references: [id])
 }
 
 enum PaymentType {
@@ -383,7 +438,7 @@ model CheckrCandidate {
   lastName    String
   email       String
   provider    Provider           @relation(fields: [providerId], references: [id])
-  providerId  String             @unique
+  providerId  String
   invitations CheckrInvitation[]
   reports     CheckrReport[]
 }
