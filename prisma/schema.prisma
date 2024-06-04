@@ -163,6 +163,7 @@ model Shift {
   description                  String?
   providerRole                 String?
   facilityType                 String?
+  quantityOfHours              String         @default("0")
   malpracticeInsuranceRequired Boolean        @default(false)
   experienceInSoftwareRequired Boolean        @default(false)
   drugScreenRequired           Boolean        @default(false)
