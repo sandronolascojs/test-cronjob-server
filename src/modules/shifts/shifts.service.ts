@@ -1,18 +1,14 @@
 import { Injectable, Logger } from '@nestjs/common'
 import { Cron } from '@nestjs/schedule'
-import { HttpService } from '@nestjs/axios'
+import axios from 'axios'
 
 import { PrismaService } from 'src/shared/services/prisma.service'
 import { EmailType } from 'src/shared/types/enums/emailType.enum'
-import axios from 'axios'
 
 @Injectable()
 export class ShiftsService {
   private readonly logger = new Logger(ShiftsService.name)
-  constructor(
-    private readonly prismaService: PrismaService,
-    private readonly httpService: HttpService,
-  ) {}
+  constructor(private readonly prismaService: PrismaService) {}
 
   @Cron('0 */5 * * * *')
   async removeExpiredShifts() {
@@ -69,7 +65,9 @@ export class ShiftsService {
       where: {
         hiredProviderId: null,
         archived: false,
-        status: 'Pending',
+        status: {
+          in: ['Pending', 'Open'],
+        },
         shiftDate: {
           lt: now,
         },

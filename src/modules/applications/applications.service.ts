@@ -1,20 +1,16 @@
 import { Injectable, Logger } from '@nestjs/common'
 import { Cron } from '@nestjs/schedule'
-import { HttpService } from '@nestjs/axios'
+import axios from 'axios'
 
 import { PrismaService } from 'src/shared/services/prisma.service'
 import { env } from 'src/shared/config/env.config'
 import { EmailType } from 'src/shared/types/enums/emailType.enum'
 import { FOURTY_EIGHT_HOURS } from 'src/shared/types/constants/time.constants'
-import axios from 'axios'
 
 @Injectable()
 export class ApplicationsService {
   private readonly logger = new Logger(ApplicationsService.name)
-  constructor(
-    private readonly prismaService: PrismaService,
-    private readonly httpService: HttpService,
-  ) {}
+  constructor(private readonly prismaService: PrismaService) {}
 
   @Cron('0 */3 * * * *')
   async removeExpiredApplications() {
