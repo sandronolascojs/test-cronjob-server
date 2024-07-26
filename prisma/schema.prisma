@@ -167,6 +167,8 @@ model Shift {
   malpracticeInsuranceRequired Boolean        @default(false)
   experienceInSoftwareRequired Boolean        @default(false)
   drugScreenRequired           Boolean        @default(false)
+  canceledAt                   DateTime?
+  canceledBy                   String?
   languages                    Language[]     @relation("ShiftToLanguage")
   software                     String?
   specialties                  Specialty[]    @relation("ShiftToSpecialty")
